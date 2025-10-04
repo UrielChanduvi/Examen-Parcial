@@ -21,7 +21,7 @@ BEGIN
     IF EXISTS (
         SELECT 1
         FROM information_schema.columns
-        WHERE table_name = 'AspNetUsers'
+        WHERE lower(table_name) = 'aspnetusers'
           AND column_name = 'EmailConfirmed'
           AND data_type <> 'boolean'
     ) THEN
@@ -41,7 +41,7 @@ BEGIN
     IF EXISTS (
         SELECT 1
         FROM information_schema.columns
-        WHERE table_name = 'cursos'
+        WHERE lower(table_name) = 'cursos'
           AND column_name = 'Activo'
           AND data_type <> 'boolean'
     ) THEN
