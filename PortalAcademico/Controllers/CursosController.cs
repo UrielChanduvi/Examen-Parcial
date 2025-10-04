@@ -1,8 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PortalAcademico.Data;
+using PortalAcademico.Services;
 using PortalAcademico.ViewModels;
 
 namespace PortalAcademico.Controllers;
@@ -10,10 +13,12 @@ namespace PortalAcademico.Controllers;
 public class CursosController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly ICatalogoCursosCacheService _catalogoCursosCache;
 
-    public CursosController(ApplicationDbContext context)
+    public CursosController(ApplicationDbContext context, ICatalogoCursosCacheService catalogoCursosCache)
     {
         _context = context;
+        _catalogoCursosCache = catalogoCursosCache;
     }
 
     [HttpGet]
@@ -21,35 +26,41 @@ public class CursosController : Controller
     {
         var filtroAplicado = ModelState.IsValid ? filtro : new CatalogoCursosFilterViewModel();
 
-        var query = _context.Cursos.AsNoTracking().Where(c => c.Activo);
+        var cursosActivos = await _catalogoCursosCache.ObtenerCursosActivosAsync();
+        var cursosFiltrados = cursosActivos.AsEnumerable();
 
         if (!string.IsNullOrWhiteSpace(filtroAplicado.Nombre))
         {
-            var nombre = filtroAplicado.Nombre!.Trim();
-            query = query.Where(c => EF.Functions.Like(c.Nombre, $"%{nombre}%") || EF.Functions.Like(c.Codigo, $"%{nombre}%"));
+            var nombre = filtroAplicado.Nombre.Trim();
+            cursosFiltrados = cursosFiltrados.Where(c =>
+                c.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase) ||
+                c.Codigo.Contains(nombre, StringComparison.OrdinalIgnoreCase));
         }
 
         if (filtroAplicado.CreditosMin is not null)
         {
-            query = query.Where(c => c.Creditos >= filtroAplicado.CreditosMin);
+            cursosFiltrados = cursosFiltrados.Where(c => c.Creditos >= filtroAplicado.CreditosMin);
         }
 
         if (filtroAplicado.CreditosMax is not null)
         {
-            query = query.Where(c => c.Creditos <= filtroAplicado.CreditosMax);
+            cursosFiltrados = cursosFiltrados.Where(c => c.Creditos <= filtroAplicado.CreditosMax);
         }
 
         if (filtroAplicado.HorarioInicio is not null)
         {
-            query = query.Where(c => c.HorarioInicio >= filtroAplicado.HorarioInicio);
+            cursosFiltrados = cursosFiltrados.Where(c => c.HorarioInicio >= filtroAplicado.HorarioInicio);
         }
 
         if (filtroAplicado.HorarioFin is not null)
         {
-            query = query.Where(c => c.HorarioFin <= filtroAplicado.HorarioFin);
+            cursosFiltrados = cursosFiltrados.Where(c => c.HorarioFin <= filtroAplicado.HorarioFin);
         }
 
-        var cursos = await query.OrderBy(c => c.HorarioInicio).ThenBy(c => c.Nombre).ToListAsync();
+        var cursos = cursosFiltrados
+            .OrderBy(c => c.HorarioInicio)
+            .ThenBy(c => c.Nombre)
+            .ToList();
 
         var viewModel = new CatalogoCursosViewModel
         {
@@ -68,6 +79,9 @@ public class CursosController : Controller
         {
             return NotFound();
         }
+
+        HttpContext.Session.SetInt32("LastCourseId", curso.Id);
+        HttpContext.Session.SetString("LastCourseName", curso.Nombre);
 
         return View(curso);
     }
