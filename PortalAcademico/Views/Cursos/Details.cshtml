@@ -32,7 +32,7 @@ else if (TempData["ErrorMessage"] is string errorMessage)
 <div class="d-flex flex-column flex-md-row gap-2">
     @if (User.Identity?.IsAuthenticated ?? false)
     {
-        <form asp-controller="Matriculas" asp-action="Create" method="post" class="d-inline">
+        <form asp-controller="Matriculas" asp-action="Create" method="post" class="d-inline">`r`n        @Html.AntiForgeryToken()
             <input type="hidden" name="cursoId" value="@Model.Id" />
             <button type="submit" class="btn btn-success">Inscribirse</button>
         </form>
