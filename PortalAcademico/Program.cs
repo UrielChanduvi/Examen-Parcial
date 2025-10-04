@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -17,6 +18,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
+    options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+
     if (IsPostgres(connectionString))
     {
         var normalized = NormalizePostgresConnectionString(connectionString);
