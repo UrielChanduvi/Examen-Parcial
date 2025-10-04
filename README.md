@@ -24,5 +24,6 @@ La aplicacion semilla un usuario coordinador al iniciar:
 ## Estructura actual
 
 - `feature/bootstrap-dominio`: creacion del proyecto base, modelos `Curso` y `Matricula`, restricciones y datos semilla.
+- `feature/catalogo-cursos`: catalogo con filtros por nombre, rango de creditos, horario y vista detalle con boton de inscripcion.
 
-Se ampliara esta documentacion conforme se implementen las siguientes preguntas (catalogo, matriculas, sesiones/Redis, panel de coordinador y despliegue en Render).
+El documento se actualizara con las demas preguntas (matriculas, sesiones/Redis, panel coordinador y despliegue en Render) conforme se implementen.
