@@ -31,6 +31,7 @@ Configura las siguientes variables antes de ejecutar en Production o Render:
 - `ConnectionStrings__Redis` o `Redis__ConnectionString`: cadena de conexion hacia Redis gestionado.
 - `ASPNETCORE_ENVIRONMENT`: `Development` para local, `Production` en despliegue.
 - `ASPNETCORE_URLS`: en Render debe apuntar a `http://0.0.0.0:${PORT}` (ya definido en `render.yaml`).
+La aplicacion detecta la cadena: si empieza con `postgres://` o contiene `Host=`, usa Npgsql (Postgres); de lo contrario mantiene SQLite.
 
 Si no se define una cadena de Redis, la aplicacion usa un cache distribuido en memoria solo para desarrollo.
 
