@@ -1,0 +1,124 @@
+﻿@using System.Linq
+@using PortalAcademico.Models
+@model PortalAcademico.ViewModels.MatriculasCursoViewModel
+@{
+    ViewData["Title"] = $"Matriculas curso {Model.CursoNombre}";
+}
+
+<h1 class="mb-4">Matriculas - @Model.CursoNombre</h1>
+
+@if (TempData["SuccessMessage"] is string message)
+{
+    <div class="alert alert-success" role="alert">@message</div>
+}
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <p class="mb-1 text-muted">Cupo maximo</p>
+                <h5 class="card-title">@Model.CupoMaximo</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <p class="mb-1 text-muted">Pendientes</p>
+                <h5 class="card-title">@Model.MatriculasPendientes</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <p class="mb-1 text-muted">Confirmadas</p>
+                <h5 class="card-title">@Model.MatriculasConfirmadas</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <p class="mb-1 text-muted">Estado curso</p>
+                <h5 class="card-title">
+                    @if (Model.CursoActivo)
+                    {
+                        <span class="badge text-bg-success">Activo</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-secondary">Inactivo</span>
+                    }
+                </h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Matriculas.Any())
+{
+    <div class="alert alert-info">No hay matriculas registradas para este curso.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Estudiante</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var matricula in Model.Matriculas)
+            {
+                <tr>
+                    <td>@matricula.EstudianteEmail</td>
+                    <td>@matricula.FechaRegistro.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @switch (matricula.Estado)
+                        {
+                            case MatriculaEstado.Pendiente:
+                                <span class="badge text-bg-warning text-dark">Pendiente</span>
+                                break;
+                            case MatriculaEstado.Confirmada:
+                                <span class="badge text-bg-success">Confirmada</span>
+                                break;
+                            case MatriculaEstado.Cancelada:
+                                <span class="badge text-bg-secondary">Cancelada</span>
+                                break;
+                        }
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group" role="group">
+                            @if (matricula.Estado == MatriculaEstado.Pendiente)
+                            {
+                                <form asp-action="ConfirmarMatricula" asp-route-id="@matricula.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Confirmar</button>
+                                </form>
+                                <form asp-action="CancelarMatricula" asp-route-id="@matricula.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                                </form>
+                            }
+                            else if (matricula.Estado == MatriculaEstado.Confirmada)
+                            {
+                                <form asp-action="CancelarMatricula" asp-route-id="@matricula.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+<a asp-action="Cursos" class="btn btn-outline-secondary mt-3">Volver a cursos</a>

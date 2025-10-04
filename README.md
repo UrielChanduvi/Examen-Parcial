@@ -39,4 +39,5 @@ Si no se define una cadena de Redis, la aplicacion usa un cache distribuido en m
 - `feature/matriculas`: flujo de inscripcion con validaciones de autenticacion, cupo y choque de horario, feedback en la vista.
 - `feature/sesion-redis`: sesiones respaldadas por Redis para recordar el ultimo curso visitado y cache del catalogo (60s) con invalidacion preparada para operaciones de cursos.
 
+- `feature/panel-coordinador`: panel protegido por rol con CRUD de cursos, desactivacion, gestion de matriculas (confirmar/cancelar) e invalidacion de cache.
 El documento se actualizara con las demas preguntas (panel coordinador y despliegue en Render) conforme se implementen.
