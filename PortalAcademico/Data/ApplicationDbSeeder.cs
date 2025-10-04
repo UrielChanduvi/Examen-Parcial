@@ -22,7 +22,7 @@ BEGIN
         SELECT 1
         FROM information_schema.columns
         WHERE lower(table_name) = 'aspnetusers'
-          AND column_name = 'EmailConfirmed'
+          AND column_name = 'emailconfirmed'
           AND data_type <> 'boolean'
     ) THEN
         ALTER TABLE "AspNetUsers"
@@ -35,18 +35,32 @@ END
 $$;
 """;
 
-    private const string NormalizeCursosActivoSql = """
+    private const string NormalizeCursosSql = """
 DO $$
+DECLARE
+    seq_name text := '"Cursos_Id_seq"';
 BEGIN
     IF EXISTS (
         SELECT 1
         FROM information_schema.columns
         WHERE lower(table_name) = 'cursos'
-          AND column_name = 'Activo'
+          AND column_name = 'activo'
           AND data_type <> 'boolean'
     ) THEN
         ALTER TABLE "Cursos"
             ALTER COLUMN "Activo" TYPE boolean USING CASE WHEN "Activo"::text IN ('1', 'true', 't', 'yes', 'y') THEN true ELSE false END;
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE lower(table_name) = 'cursos'
+          AND column_name = 'id'
+          AND (column_default IS NULL OR column_default = '')
+    ) THEN
+        EXECUTE format('CREATE SEQUENCE IF NOT EXISTS %s', seq_name);
+        EXECUTE format('ALTER TABLE "Cursos" ALTER COLUMN "Id" SET DEFAULT nextval(''%s'')', seq_name);
+        EXECUTE format('SELECT setval(''%s'', COALESCE(MAX("Id"), 0) + 1, false) FROM "Cursos"', seq_name);
     END IF;
 END
 $$;
@@ -56,7 +70,7 @@ $$;
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
-        await NormalizeBooleanColumnsAsync(context, logger);
+        await NormalizeSchemaAsync(context, logger);
 
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
@@ -76,7 +90,7 @@ $$;
         }
     }
 
-    private static async Task NormalizeBooleanColumnsAsync(ApplicationDbContext context, ILogger logger)
+    private static async Task NormalizeSchemaAsync(ApplicationDbContext context, ILogger logger)
     {
         if (context.Database.ProviderName != "Npgsql.EntityFrameworkCore.PostgreSQL")
         {
@@ -86,11 +100,11 @@ $$;
         try
         {
             await context.Database.ExecuteSqlRawAsync(NormalizeIdentityBooleansSql);
-            await context.Database.ExecuteSqlRawAsync(NormalizeCursosActivoSql);
+            await context.Database.ExecuteSqlRawAsync(NormalizeCursosSql);
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "No fue posible normalizar columnas booleanas en Postgres");
+            logger.LogWarning(ex, "No fue posible normalizar columnas en Postgres");
         }
     }
 
