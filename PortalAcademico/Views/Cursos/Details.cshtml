@@ -4,6 +4,15 @@
     ViewData["Title"] = $"Curso {Model.Nombre}";
 }
 
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success" role="alert">@successMessage</div>
+}
+else if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+
 <h1>@Model.Nombre</h1>
 
 <dl class="row">
@@ -20,10 +29,17 @@
     <dd class="col-sm-9">@Model.CupoMaximo</dd>
 </dl>
 
-<div class="d-flex gap-2">
-    <form asp-controller="Matriculas" asp-action="Create" method="post">
-        <input type="hidden" name="cursoId" value="@Model.Id" />
-        <button type="submit" class="btn btn-success">Inscribirse</button>
-    </form>
+<div class="d-flex flex-column flex-md-row gap-2">
+    @if (User.Identity?.IsAuthenticated ?? false)
+    {
+        <form asp-controller="Matriculas" asp-action="Create" method="post" class="d-inline">
+            <input type="hidden" name="cursoId" value="@Model.Id" />
+            <button type="submit" class="btn btn-success">Inscribirse</button>
+        </form>
+    }
+    else
+    {
+        <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Cursos", new { id = Model.Id })" class="btn btn-success">Iniciar sesion para inscribirse</a>
+    }
     <a asp-action="Index" class="btn btn-outline-secondary">Volver al catalogo</a>
 </div>
