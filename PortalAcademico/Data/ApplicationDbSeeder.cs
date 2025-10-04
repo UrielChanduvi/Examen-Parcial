@@ -15,10 +15,48 @@ public static class ApplicationDbSeeder
     private const string CoordinadorEmail = "coordinador@universidad.test";
     private const string CoordinadorPassword = "P@ssw0rd!";
 
+    private const string NormalizeIdentityBooleansSql = """
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'AspNetUsers'
+          AND column_name = 'EmailConfirmed'
+          AND data_type <> 'boolean'
+    ) THEN
+        ALTER TABLE "AspNetUsers"
+            ALTER COLUMN "EmailConfirmed" TYPE boolean USING CASE WHEN "EmailConfirmed"::text IN ('1', 'true', 't', 'yes', 'y') THEN true ELSE false END,
+            ALTER COLUMN "PhoneNumberConfirmed" TYPE boolean USING CASE WHEN "PhoneNumberConfirmed"::text IN ('1', 'true', 't', 'yes', 'y') THEN true ELSE false END,
+            ALTER COLUMN "TwoFactorEnabled" TYPE boolean USING CASE WHEN "TwoFactorEnabled"::text IN ('1', 'true', 't', 'yes', 'y') THEN true ELSE false END,
+            ALTER COLUMN "LockoutEnabled" TYPE boolean USING CASE WHEN "LockoutEnabled"::text IN ('1', 'true', 't', 'yes', 'y') THEN true ELSE false END;
+    END IF;
+END
+$$;
+""";
+
+    private const string NormalizeCursosActivoSql = """
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'cursos'
+          AND column_name = 'Activo'
+          AND data_type <> 'boolean'
+    ) THEN
+        ALTER TABLE "Cursos"
+            ALTER COLUMN "Activo" TYPE boolean USING CASE WHEN "Activo"::text IN ('1', 'true', 't', 'yes', 'y') THEN true ELSE false END;
+    END IF;
+END
+$$;
+""";
+
     public static async Task SeedAsync(IServiceProvider services, ILogger logger)
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
+        await NormalizeBooleanColumnsAsync(context, logger);
 
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
@@ -35,6 +73,24 @@ public static class ApplicationDbSeeder
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 logger.LogError("Error asignando rol de coordinador: {Errors}", errors);
             }
+        }
+    }
+
+    private static async Task NormalizeBooleanColumnsAsync(ApplicationDbContext context, ILogger logger)
+    {
+        if (context.Database.ProviderName != "Npgsql.EntityFrameworkCore.PostgreSQL")
+        {
+            return;
+        }
+
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(NormalizeIdentityBooleansSql);
+            await context.Database.ExecuteSqlRawAsync(NormalizeCursosActivoSql);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "No fue posible normalizar columnas booleanas en Postgres");
         }
     }
 
