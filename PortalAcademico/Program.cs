@@ -126,9 +126,10 @@ static string NormalizePostgresConnectionString(string connectionString)
         var builder = new NpgsqlConnectionStringBuilder
         {
             Host = uri.Host,
-            Port = uri.Port,
             Database = uri.AbsolutePath.Trim('/')
         };
+
+        builder.Port = uri.IsDefaultPort || uri.Port <= 0 ? 5432 : uri.Port;
 
         if (userInfo.Length > 0 && !string.IsNullOrWhiteSpace(userInfo[0]))
         {
