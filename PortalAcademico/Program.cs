@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using PortalAcademico.Data;
 using PortalAcademico.Models;
 using PortalAcademico.Services;
@@ -10,9 +12,22 @@ using PortalAcademico.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+{
+    if (IsPostgres(connectionString))
+    {
+        var normalized = NormalizePostgresConnectionString(connectionString);
+        options.UseNpgsql(normalized);
+    }
+    else
+    {
+        options.UseSqlite(connectionString);
+    }
+});
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? builder.Configuration["Redis:ConnectionString"];
@@ -93,3 +108,58 @@ app.MapRazorPages()
    .WithStaticAssets();
 
 app.Run();
+
+static bool IsPostgres(string connectionString)
+{
+    return connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase)
+        || connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
+        || connectionString.Contains("Host=", StringComparison.OrdinalIgnoreCase);
+}
+
+static string NormalizePostgresConnectionString(string connectionString)
+{
+    if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase)
+        || connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+    {
+        var uri = new Uri(connectionString);
+        var userInfo = Uri.UnescapeDataString(uri.UserInfo ?? string.Empty).Split(':', 2);
+        var builder = new NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Port = uri.Port,
+            Database = uri.AbsolutePath.Trim('/')
+        };
+
+        if (userInfo.Length > 0 && !string.IsNullOrWhiteSpace(userInfo[0]))
+        {
+            builder.Username = userInfo[0];
+        }
+
+        if (userInfo.Length > 1 && !string.IsNullOrWhiteSpace(userInfo[1]))
+        {
+            builder.Password = userInfo[1];
+        }
+
+        if (!string.IsNullOrEmpty(uri.Query))
+        {
+            var query = uri.Query.Trim('?');
+            foreach (var pair in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var parts = pair.Split('=', 2);
+                if (parts.Length == 2)
+                {
+                    builder[parts[0]] = Uri.UnescapeDataString(parts[1]);
+                }
+            }
+        }
+
+        if (!builder.ContainsKey("Ssl Mode"))
+        {
+            builder.SslMode = SslMode.Require;
+        }
+
+        return builder.ConnectionString;
+    }
+
+    return connectionString;
+}
