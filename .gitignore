@@ -1,0 +1,19 @@
+﻿# Build artifacts
+**/bin/
+**/obj/
+
+# Packages
+**/packages/
+
+# User secrets
+**/appsettings.Development.json
+
+# Databases
+*.db
+*.db-journal
+
+# Visual Studio
+.vs/
+
+# Rider
+.idea/
