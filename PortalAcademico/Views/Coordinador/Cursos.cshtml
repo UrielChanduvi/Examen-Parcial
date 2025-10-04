@@ -1,0 +1,75 @@
+﻿@using System.Linq
+@model IEnumerable<PortalAcademico.Models.Curso>
+@{
+    ViewData["Title"] = "Gestion de cursos";
+}
+
+<h1 class="mb-4">Gestion de cursos</h1>
+
+@if (TempData["SuccessMessage"] is string message)
+{
+    <div class="alert alert-success" role="alert">@message</div>
+}
+
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <a asp-action="Crear" class="btn btn-primary">Nuevo curso</a>
+    <span class="text-muted">Total: @Model.Count()</span>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Codigo</th>
+                <th>Nombre</th>
+                <th class="text-center">Creditos</th>
+                <th class="text-center">Cupo</th>
+                <th>Horario</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var curso in Model)
+        {
+            <tr class="@(curso.Activo ? string.Empty : "table-warning")">
+                <td>@curso.Codigo</td>
+                <td>@curso.Nombre</td>
+                <td class="text-center">@curso.Creditos</td>
+                <td class="text-center">@curso.CupoMaximo</td>
+                <td>@curso.HorarioInicio.ToString("HH:mm") - @curso.HorarioFin.ToString("HH:mm")</td>
+                <td>
+                    @if (curso.Activo)
+                    {
+                        <span class="badge text-bg-success">Activo</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-secondary">Inactivo</span>
+                    }
+                </td>
+                <td class="text-end">
+                    <div class="btn-group" role="group">
+                        <a asp-action="Editar" asp-route-id="@curso.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+                        <a asp-action="Matriculas" asp-route-id="@curso.Id" class="btn btn-sm btn-outline-info">Matriculas</a>
+                        @if (curso.Activo)
+                        {
+                            <form asp-action="Desactivar" asp-route-id="@curso.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-warning">Desactivar</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="Activar" asp-route-id="@curso.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                            </form>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

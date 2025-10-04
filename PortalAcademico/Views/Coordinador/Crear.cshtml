@@ -1,0 +1,20 @@
+﻿@model PortalAcademico.ViewModels.CursoFormViewModel
+@{
+    ViewData["Title"] = "Nuevo curso";
+}
+
+<h1 class="mb-4">Nuevo curso</h1>
+
+<form asp-action="Crear" method="post" class="border rounded p-3">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <partial name="_CursoFormFields" />
+    <div class="mt-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a asp-action="Cursos" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
