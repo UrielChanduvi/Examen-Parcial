@@ -36,13 +36,11 @@ public class RegisterModel : PageModel
 
     private static readonly string[] StudentCareers = new[]
     {
-        "Ingenieria de Computacion y Sistemas",
-        "Ingenieria Industrial",
-        "Ingenieria Civil",
-        "Ingenieria Ambiental",
-        "Ingenieria Electronica",
-        "Ingenieria Mecanica",
-        "Ingenieria de Telecomunicaciones"
+        "Ingeniería de Computación y Sistemas",
+        "Ingeniería Industrial",
+        "Ingeniería Civil",
+        "Arquitectura",
+        "Ciencias Aeronáuticas"
     };
 
     public class InputModel
@@ -65,14 +63,14 @@ public class RegisterModel : PageModel
         public string Career { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y maximo {1} caracteres.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y máximo {1} caracteres.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Contrasena")]
+        [Display(Name = "Contraseña")]
         public string Password { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirmar contrasena")]
-        [Compare("Password", ErrorMessage = "La contrasena y la confirmacion no coinciden.")]
+        [Display(Name = "Confirmar contraseña")]
+        [Compare("Password", ErrorMessage = "La contraseña y la confirmación no coinciden.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 
