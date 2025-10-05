@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Net;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -10,7 +8,6 @@ using Npgsql;
 using PortalAcademico.Data;
 using PortalAcademico.Models;
 using PortalAcademico.Services;
-using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,20 +32,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis")
-    ?? builder.Configuration["Redis:ConnectionString"];
-
-if (!string.IsNullOrWhiteSpace(redisConnectionString))
-{
-    builder.Services.AddStackExchangeRedisCache(options =>
-    {
-        options.ConfigurationOptions = BuildRedisConfiguration(redisConnectionString);
-    });
-}
-else
-{
-    builder.Services.AddDistributedMemoryCache();
-}
+builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
@@ -170,60 +154,4 @@ static string NormalizePostgresConnectionString(string connectionString)
     }
 
     return connectionString;
-}
-
-static ConfigurationOptions BuildRedisConfiguration(string connectionString)
-{
-    if (connectionString.StartsWith("redis://", StringComparison.OrdinalIgnoreCase)
-        || connectionString.StartsWith("rediss://", StringComparison.OrdinalIgnoreCase))
-    {
-        var uri = new Uri(connectionString);
-        var options = new ConfigurationOptions
-        {
-            EndPoints = { { uri.Host, uri.Port > 0 ? uri.Port : 6379 } },
-            Ssl = uri.Scheme.Equals("rediss", StringComparison.OrdinalIgnoreCase),
-            AbortOnConnectFail = false,
-            SslHost = uri.Host
-        };
-
-        if (!string.IsNullOrEmpty(uri.UserInfo))
-        {
-            var parts = Uri.UnescapeDataString(uri.UserInfo).Split(':', 2);
-            if (parts.Length == 2)
-            {
-                options.User = parts[0];
-                options.Password = parts[1];
-            }
-            else
-            {
-                options.Password = parts[0];
-            }
-        }
-
-        return options;
-    }
-
-    var fallback = ConfigurationOptions.Parse(connectionString, true);
-    fallback.Ssl = true;
-
-    if (fallback.EndPoints.Count > 0)
-    {
-        var endpoint = fallback.EndPoints[0];
-        switch (endpoint)
-        {
-            case DnsEndPoint dns:
-                fallback.SslHost = dns.Host;
-                break;
-            case IPEndPoint ip:
-                fallback.SslHost = ip.Address.ToString();
-                break;
-            default:
-                var endpointString = endpoint?.ToString() ?? string.Empty;
-                fallback.SslHost = endpointString.Contains(':') ? endpointString.Split(':')[0] : endpointString;
-                break;
-        }
-    }
-
-    fallback.AbortOnConnectFail = false;
-    return fallback;
 }
