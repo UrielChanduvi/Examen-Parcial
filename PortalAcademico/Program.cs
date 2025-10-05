@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -181,7 +182,8 @@ static ConfigurationOptions BuildRedisConfiguration(string connectionString)
         {
             EndPoints = { { uri.Host, uri.Port > 0 ? uri.Port : 6379 } },
             Ssl = uri.Scheme.Equals("rediss", StringComparison.OrdinalIgnoreCase),
-            AbortOnConnectFail = false
+            AbortOnConnectFail = false,
+            SslHost = uri.Host
         };
 
         if (!string.IsNullOrEmpty(uri.UserInfo))
@@ -192,7 +194,7 @@ static ConfigurationOptions BuildRedisConfiguration(string connectionString)
                 options.User = parts[0];
                 options.Password = parts[1];
             }
-            else if (parts.Length == 1)
+            else
             {
                 options.Password = parts[0];
             }
@@ -203,6 +205,25 @@ static ConfigurationOptions BuildRedisConfiguration(string connectionString)
 
     var fallback = ConfigurationOptions.Parse(connectionString, true);
     fallback.Ssl = true;
+
+    if (fallback.EndPoints.Count > 0)
+    {
+        var endpoint = fallback.EndPoints[0];
+        switch (endpoint)
+        {
+            case DnsEndPoint dns:
+                fallback.SslHost = dns.Host;
+                break;
+            case IPEndPoint ip:
+                fallback.SslHost = ip.Address.ToString();
+                break;
+            default:
+                var endpointString = endpoint?.ToString() ?? string.Empty;
+                fallback.SslHost = endpointString.Contains(':') ? endpointString.Split(':')[0] : endpointString;
+                break;
+        }
+    }
+
     fallback.AbortOnConnectFail = false;
     return fallback;
 }
