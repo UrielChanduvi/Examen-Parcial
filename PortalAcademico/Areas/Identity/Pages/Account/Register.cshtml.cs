@@ -36,13 +36,13 @@ public class RegisterModel : PageModel
 
     private static readonly string[] StudentCareers = new[]
     {
-        "Ingeniería de Computación y Sistemas",
-        "Ingeniería Industrial",
-        "Ingeniería Civil",
-        "Ingeniería Ambiental",
-        "Ingeniería Electrónica",
-        "Ingeniería Mecánica",
-        "Ingeniería de Telecomunicaciones"
+        "Ingenieria de Computacion y Sistemas",
+        "Ingenieria Industrial",
+        "Ingenieria Civil",
+        "Ingenieria Ambiental",
+        "Ingenieria Electronica",
+        "Ingenieria Mecanica",
+        "Ingenieria de Telecomunicaciones"
     };
 
     public class InputModel
@@ -57,7 +57,7 @@ public class RegisterModel : PageModel
 
         [Required]
         [EmailAddress]
-        [Display(Name = "Correo institucional")]
+        [Display(Name = "Correo institucional (@usmp.pe)")]
         public string Email { get; set; } = string.Empty;
 
         [Required]
@@ -65,14 +65,14 @@ public class RegisterModel : PageModel
         public string Career { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(100, ErrorMessage = "El {0} debe tener al menos {2} y máximo {1} caracteres.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "La {0} debe tener al menos {2} y maximo {1} caracteres.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Contraseña")]
+        [Display(Name = "Contrasena")]
         public string Password { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirmar contraseña")]
-        [Compare("Password", ErrorMessage = "La contraseña y la confirmación no coinciden.")]
+        [Display(Name = "Confirmar contrasena")]
+        [Compare("Password", ErrorMessage = "La contrasena y la confirmacion no coinciden.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 
@@ -86,6 +86,12 @@ public class RegisterModel : PageModel
     {
         returnUrl ??= Url.Content("/Cursos");
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+        if (!Input.Email.EndsWith("@usmp.pe", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError("Input.Email", "El correo debe pertenecer al dominio @usmp.pe.");
+        }
+
         if (ModelState.IsValid)
         {
             var user = new ApplicationUser
