@@ -22,7 +22,7 @@ BEGIN
         SELECT 1
         FROM information_schema.columns
         WHERE lower(table_name) = 'aspnetusers'
-          AND column_name = 'emailconfirmed'
+          AND lower(column_name) = 'emailconfirmed'
           AND data_type <> 'boolean'
     ) THEN
         ALTER TABLE "AspNetUsers"
@@ -44,7 +44,7 @@ BEGIN
         SELECT 1
         FROM information_schema.columns
         WHERE lower(table_name) = 'cursos'
-          AND column_name = 'activo'
+          AND lower(column_name) = 'activo'
           AND data_type <> 'boolean'
     ) THEN
         ALTER TABLE "Cursos"
@@ -55,7 +55,7 @@ BEGIN
         SELECT 1
         FROM information_schema.columns
         WHERE lower(table_name) = 'cursos'
-          AND column_name = 'id'
+          AND lower(column_name) = 'id'
           AND (column_default IS NULL OR column_default = '')
     ) THEN
         EXECUTE format('CREATE SEQUENCE IF NOT EXISTS %s', seq_name);
