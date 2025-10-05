@@ -12,6 +12,7 @@ namespace PortalAcademico.Data;
 public static class ApplicationDbSeeder
 {
     private const string CoordinadorRole = "Coordinador";
+    private const string EstudianteRole = "Estudiante";
     private const string CoordinadorEmail = "coordinador@universidad.test";
     private const string CoordinadorPassword = "P@ssw0rd!";
 

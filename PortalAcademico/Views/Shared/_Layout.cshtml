@@ -5,59 +5,75 @@
     var lastCourseName = session?.GetString("LastCourseName");
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PortalAcademico</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Portal Académico FIA</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PortalAcademico.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" integrity="sha384-X0rLXrFdYy+jS/fWznuaCG2lLBVmOAXoJ1Bs8LojRxRuCs1oQcWz+LO4InENcywy" crossorigin="anonymous" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PortalAcademico</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+    <header class="fia-header">
+        <div class="fia-topbar">
+            <div class="container d-flex justify-content-between align-items-center">
+                <div class="fia-brand">
+                    <a asp-controller="Cursos" asp-action="Index" class="text-decoration-none text-white">
+                        <span class="fia-uni">Universidad de San Martín de Porres</span>
+                        <span class="fia-faculty">Facultad de Ingeniería y Arquitectura</span>
+                    </a>
+                </div>
+                <div class="fia-contact text-white">
+                    <span class="me-3"><i class="bi bi-telephone"></i> (01) 362-0064</span>
+                    <span><i class="bi bi-envelope"></i> fia@usmp.pe</span>
+                </div>
+            </div>
+        </div>
+        <nav class="navbar navbar-expand-lg navbar-fia">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Cursos" asp-action="Index">Portal Académico FIA</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-controller="Cursos" asp-action="Index">Catálogo</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Cursos" asp-action="Index">Catalogo de cursos</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Privacy">Sobre la FIA</a>
                         </li>
                         @if (lastCourseId is int courseId && !string.IsNullOrWhiteSpace(lastCourseName))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Cursos" asp-action="Details" asp-route-id="@courseId">Volver al curso @lastCourseName</a>
+                                <a class="nav-link highlight" asp-controller="Cursos" asp-action="Details" asp-route-id="@courseId">Volver a @lastCourseName</a>
                             </li>
                         }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - PortalAcademico - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main class="main-content">
+        @RenderBody()
+    </main>
+    <footer class="fia-footer">
+        <div class="container d-flex flex-column flex-lg-row justify-content-between align-items-center">
+            <div>
+                <strong>Portal Académico FIA</strong><br />
+                Universidad de San Martín de Porres - Facultad de Ingeniería y Arquitectura
+            </div>
+            <div class="fia-footer-links">
+                <a asp-controller="Cursos" asp-action="Index">Catálogo</a>
+                <a asp-area="Identity" asp-page="/Account/Login">Ingresar</a>
+                <a asp-area="Identity" asp-page="/Account/Register">Registrarse</a>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

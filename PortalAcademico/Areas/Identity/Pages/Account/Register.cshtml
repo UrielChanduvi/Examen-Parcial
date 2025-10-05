@@ -1,0 +1,56 @@
+﻿@page
+@model PortalAcademico.Areas.Identity.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Crear cuenta";
+}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Registro de Estudiante</h1>
+        <p class="auth-subtitle">Completa tus datos para acceder al catálogo y matricularte en tus cursos.</p>
+
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Input.FirstName" class="form-label">Nombre(s)</label>
+                    <input asp-for="Input.FirstName" class="form-control" placeholder="Ej. Ana María" autocomplete="given-name" />
+                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Input.LastName" class="form-label">Apellidos</label>
+                    <input asp-for="Input.LastName" class="form-control" placeholder="Ej. Pérez Gómez" autocomplete="family-name" />
+                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Input.Email" class="form-label">Correo institucional (&#64;usmp.pe)</label>
+                    <input asp-for="Input.Email" class="form-control" placeholder="tuusuario@usmp.pe" autocomplete="username" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Input.Career" class="form-label">Carrera</label>
+                    <select asp-for="Input.Career" class="form-select" asp-items="Model.CareerOptions">
+                        <option value="">Selecciona una carrera</option>
+                    </select>
+                    <span asp-validation-for="Input.Career" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Input.Password" class="form-label">Contraseña</label>
+                    <input asp-for="Input.Password" class="form-control" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Input.ConfirmPassword" class="form-label">Confirmar contraseña</label>
+                    <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Repite tu contraseña" autocomplete="new-password" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+            <button id="registerSubmit" type="submit" class="btn btn-fia w-100 mt-4">Registrarse</button>
+        </form>
+        <p class="auth-footer">¿Ya tienes una cuenta? <a asp-page="/Account/Login" asp-route-returnUrl="@Model.ReturnUrl">Inicia sesión aquí</a>.</p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

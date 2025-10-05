@@ -1,77 +1,71 @@
 ﻿@model PortalAcademico.ViewModels.CatalogoCursosViewModel
 @using System.Linq
 @{
-    ViewData["Title"] = "Catalogo de cursos";
+    ViewData["Title"] = "Catálogo de cursos";
 }
 
-<h1 class="mb-4">Catalogo de cursos</h1>
+<section class="catalog-hero mb-5">
+    <h1>Planifica tu ruta académica en la FIA</h1>
+    <p>Explora la oferta de cursos de la Facultad de Ingeniería y Arquitectura. Filtra por horario, créditos o área para encontrar las asignaturas que se ajustan a tu avance curricular.</p>
+</section>
 
-<form method="get" class="border rounded p-3 mb-4">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="row g-3">
-        <div class="col-md-4">
-            <label asp-for="Filtro.Nombre" class="form-label"></label>
-            <input asp-for="Filtro.Nombre" class="form-control" />
+<section class="filter-card">
+    <form method="get">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="Filtro.Nombre" class="form-label">Nombre o código</label>
+                <input asp-for="Filtro.Nombre" class="form-control" placeholder="Ej. Programación" />
+            </div>
+            <div class="col-md-2">
+                <label asp-for="Filtro.CreditosMin" class="form-label">Créditos mín.</label>
+                <input asp-for="Filtro.CreditosMin" class="form-control" type="number" min="0" />
+                <span asp-validation-for="Filtro.CreditosMin" class="text-danger"></span>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="Filtro.CreditosMax" class="form-label">Créditos máx.</label>
+                <input asp-for="Filtro.CreditosMax" class="form-control" type="number" min="0" />
+                <span asp-validation-for="Filtro.CreditosMax" class="text-danger"></span>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="Filtro.HorarioInicio" class="form-label">Horario desde</label>
+                <input asp-for="Filtro.HorarioInicio" class="form-control" type="time" />
+            </div>
+            <div class="col-md-2">
+                <label asp-for="Filtro.HorarioFin" class="form-label">Horario hasta</label>
+                <input asp-for="Filtro.HorarioFin" class="form-control" type="time" />
+                <span asp-validation-for="Filtro.HorarioFin" class="text-danger"></span>
+            </div>
         </div>
-        <div class="col-md-2">
-            <label asp-for="Filtro.CreditosMin" class="form-label"></label>
-            <input asp-for="Filtro.CreditosMin" class="form-control" type="number" min="0" />
-            <span asp-validation-for="Filtro.CreditosMin" class="text-danger"></span>
+        <div class="mt-4 d-flex gap-3">
+            <button type="submit" class="btn btn-fia">Aplicar filtros</button>
+            <a asp-action="Index" class="btn btn-outline-fia">Limpiar</a>
         </div>
-        <div class="col-md-2">
-            <label asp-for="Filtro.CreditosMax" class="form-label"></label>
-            <input asp-for="Filtro.CreditosMax" class="form-control" type="number" min="0" />
-            <span asp-validation-for="Filtro.CreditosMax" class="text-danger"></span>
-        </div>
-        <div class="col-md-2">
-            <label asp-for="Filtro.HorarioInicio" class="form-label"></label>
-            <input asp-for="Filtro.HorarioInicio" class="form-control" type="time" />
-        </div>
-        <div class="col-md-2">
-            <label asp-for="Filtro.HorarioFin" class="form-label"></label>
-            <input asp-for="Filtro.HorarioFin" class="form-control" type="time" />
-            <span asp-validation-for="Filtro.HorarioFin" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="mt-3 d-flex gap-2">
-        <button type="submit" class="btn btn-primary">Filtrar</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
-    </div>
-</form>
+    </form>
+</section>
 
 @if (!Model.Cursos.Any())
 {
-    <div class="alert alert-info">No se encontraron cursos que coincidan con los filtros.</div>
+    <div class="alert alert-info">No se encontraron cursos que coincidan con los filtros ingresados.</div>
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>Codigo</th>
-                    <th>Nombre</th>
-                    <th class="text-center">Creditos</th>
-                    <th>Horario</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var curso in Model.Cursos)
-            {
-                <tr>
-                    <td>@curso.Codigo</td>
-                    <td>@curso.Nombre</td>
-                    <td class="text-center">@curso.Creditos</td>
-                    <td>@curso.HorarioInicio.ToString("HH:mm") - @curso.HorarioFin.ToString("HH:mm")</td>
-                    <td class="text-end">
-                        <a asp-action="Details" asp-route-id="@curso.Id" class="btn btn-sm btn-outline-primary">Ver detalle</a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    </div>
+    <section class="course-grid">
+    @foreach (var curso in Model.Cursos)
+    {
+        <article class="course-card">
+            <div class="course-meta">@curso.Codigo &bull; @curso.Creditos crédito(s)</div>
+            <h2 class="course-name">@curso.Nombre</h2>
+            <div class="course-info">
+                <span><i class="bi bi-clock"></i> @curso.HorarioInicio.ToString("HH:mm") - @curso.HorarioFin.ToString("HH:mm")</span>
+                <span><i class="bi bi-people"></i> Cupo: @curso.CupoMaximo</span>
+            </div>
+            <div class="course-actions">
+                <a asp-action="Details" asp-route-id="@curso.Id" class="btn btn-outline-fia">Ver detalle</a>
+            </div>
+        </article>
+    }
+    </section>
 }
 
 @section Scripts {
