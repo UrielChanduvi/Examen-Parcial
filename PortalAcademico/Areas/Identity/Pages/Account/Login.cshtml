@@ -30,8 +30,8 @@
 
         <div class="quick-access mt-4">
             <h2>¿Eres coordinador?</h2>
-            <p>Usa el acceso rápido para ingresar directamente al panel académico.</p>
-            <button type="button" class="btn btn-outline-fia" id="coordinatorAccess">Acceso coordinador</button>
+            <p>Usa el acceso rápido para completar tus credenciales automáticamente.</p>
+            <button type="button" class="btn btn-outline-fia" id="coordinatorAccess">Autocompletar acceso coordinador</button>
         </div>
 
         <p class="auth-footer">¿Aún no tienes cuenta? <a asp-page="/Account/Register" asp-route-returnUrl="@Model.ReturnUrl">Regístrate aquí</a>.</p>
@@ -41,29 +41,22 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        function fillCoordinatorCredentials() {
+        document.addEventListener('DOMContentLoaded', () => {
+            const button = document.getElementById('coordinatorAccess');
             const emailInput = document.getElementById('Input_Email');
             const passwordInput = document.getElementById('Input_Password');
-            const form = document.getElementById('account');
-            if (!emailInput || !passwordInput || !form) {
+            if (!button || !emailInput || !passwordInput) {
                 return;
             }
 
-            emailInput.value = 'coordinador@universidad.test';
-            passwordInput.value = 'P@ssw0rd!';
-            emailInput.classList.add('filled');
-            passwordInput.classList.add('filled');
-            form.submit();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const button = document.getElementById('coordinatorAccess');
-            if (button) {
-                button.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    fillCoordinatorCredentials();
-                });
-            }
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                emailInput.value = 'coordinador@universidad.test';
+                passwordInput.value = 'P@ssw0rd!';
+                emailInput.dispatchEvent(new Event('input'));
+                passwordInput.dispatchEvent(new Event('input'));
+                emailInput.focus();
+            });
         });
     </script>
 }
