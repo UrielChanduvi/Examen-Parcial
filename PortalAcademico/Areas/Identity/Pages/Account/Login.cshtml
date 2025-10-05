@@ -1,0 +1,49 @@
+﻿@page
+@model PortalAcademico.Areas.Identity.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Bienvenido al Portal Académico</h1>
+        <p class="auth-subtitle">Ingresa tus credenciales o utiliza el acceso rápido para coordinadores.</p>
+
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label"></label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label"></label>
+                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-check mb-3">
+                <input asp-for="Input.RememberMe" class="form-check-input" />
+                <label asp-for="Input.RememberMe" class="form-check-label"></label>
+            </div>
+            <button id="login-submit" type="submit" class="btn btn-fia w-100">Iniciar sesión</button>
+        </form>
+
+        <div class="quick-access mt-4">
+            <h2>¿Eres coordinador?</h2>
+            <p>Usa el acceso rápido para entrar al panel académico.</p>
+            <button type="button" class="btn btn-outline-fia" onclick="fillCoordinatorCredentials()">Acceso coordinador</button>
+        </div>
+
+        <p class="auth-footer">¿Aún no tienes cuenta? <a asp-page="/Account/Register" asp-route-returnUrl="@Model.ReturnUrl">Regístrate aquí</a>.</p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function fillCoordinatorCredentials() {
+            document.getElementById('Input_Email').value = 'coordinador@universidad.test';
+            document.getElementById('Input_Password').value = 'P@ssw0rd!';
+        }
+    </script>
+}

@@ -13,33 +13,42 @@ else if (TempData["ErrorMessage"] is string errorMessage)
     <div class="alert alert-danger" role="alert">@errorMessage</div>
 }
 
-<h1>@Model.Nombre</h1>
+<section class="course-detail-card">
+    <div class="course-detail-header">
+        <div>
+            <div class="course-meta">@Model.Codigo • @Model.Creditos crédito(s)</div>
+            <h1 class="course-detail-title">@Model.Nombre</h1>
+        </div>
+    </div>
 
-<dl class="row">
-    <dt class="col-sm-3">Codigo</dt>
-    <dd class="col-sm-9">@Model.Codigo</dd>
+    <div class="course-detail-meta">
+        <div class="detail-item">
+            <span>Horario</span>
+            <strong>@Model.HorarioInicio:hh\:mm - @Model.HorarioFin:hh\:mm</strong>
+        </div>
+        <div class="detail-item">
+            <span>Cupo máximo</span>
+            <strong>@Model.CupoMaximo estudiantes</strong>
+        </div>
+        <div class="detail-item">
+            <span>Estado</span>
+            <strong>@(Model.Activo ? "Disponible" : "No disponible")</strong>
+        </div>
+    </div>
 
-    <dt class="col-sm-3">Creditos</dt>
-    <dd class="col-sm-9">@Model.Creditos</dd>
-
-    <dt class="col-sm-3">Horario</dt>
-    <dd class="col-sm-9">@Model.HorarioInicio.ToString("HH:mm") - @Model.HorarioFin.ToString("HH:mm")</dd>
-
-    <dt class="col-sm-3">Cupo maximo</dt>
-    <dd class="col-sm-9">@Model.CupoMaximo</dd>
-</dl>
-
-<div class="d-flex flex-column flex-md-row gap-2">
-    @if (User.Identity?.IsAuthenticated ?? false)
-    {
-        <form asp-controller="Matriculas" asp-action="Create" method="post" class="d-inline">`r`n        @Html.AntiForgeryToken()
-            <input type="hidden" name="cursoId" value="@Model.Id" />
-            <button type="submit" class="btn btn-success">Inscribirse</button>
-        </form>
-    }
-    else
-    {
-        <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Cursos", new { id = Model.Id })" class="btn btn-success">Iniciar sesion para inscribirse</a>
-    }
-    <a asp-action="Index" class="btn btn-outline-secondary">Volver al catalogo</a>
-</div>
+    <div class="detail-actions">
+        @if (User.Identity?.IsAuthenticated ?? false)
+        {
+            <form asp-controller="Matriculas" asp-action="Create" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="cursoId" value="@Model.Id" />
+                <button type="submit" class="btn btn-fia">Inscribirme en este curso</button>
+            </form>
+        }
+        else
+        {
+            <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Cursos", new { id = Model.Id })" class="btn btn-fia">Iniciar sesión para inscribirme</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-fia">Volver al catálogo</a>
+    </div>
+</section>
