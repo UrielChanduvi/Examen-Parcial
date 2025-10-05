@@ -12,8 +12,8 @@
         <form id="account" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="mb-3">
-                <label asp-for="Input.Email" class="form-label">Correo institucional (@@usmp.pe)</label>
-                <input asp-for="Input.Email" class="form-control" placeholder="tuusuario@@usmp.pe" autocomplete="username" />
+                <label asp-for="Input.Email" class="form-label">Correo institucional (&#64;usmp.pe)</label>
+                <input asp-for="Input.Email" class="form-control" placeholder="tuusuario@usmp.pe" autocomplete="username" />
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
             <div class="mb-3">
@@ -30,7 +30,7 @@
 
         <div class="quick-access mt-4">
             <h2>¿Eres coordinador?</h2>
-            <p>Usa el acceso rápido para entrar al panel académico.</p>
+            <p>Usa el acceso rápido para ingresar directamente al panel académico.</p>
             <button type="button" class="btn btn-outline-fia" id="coordinatorAccess">Acceso coordinador</button>
         </div>
 
@@ -41,15 +41,27 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const button = document.getElementById('coordinatorAccess');
+        function fillCoordinatorCredentials() {
             const emailInput = document.getElementById('Input_Email');
             const passwordInput = document.getElementById('Input_Password');
-            if (button && emailInput && passwordInput) {
-                button.addEventListener('click', () => {
-                    emailInput.value = 'coordinador@universidad.test';
-                    passwordInput.value = 'P@ssw0rd!';
-                    emailInput.focus();
+            const form = document.getElementById('account');
+            if (!emailInput || !passwordInput || !form) {
+                return;
+            }
+
+            emailInput.value = 'coordinador@universidad.test';
+            passwordInput.value = 'P@ssw0rd!';
+            emailInput.classList.add('filled');
+            passwordInput.classList.add('filled');
+            form.submit();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const button = document.getElementById('coordinatorAccess');
+            if (button) {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    fillCoordinatorCredentials();
                 });
             }
         });

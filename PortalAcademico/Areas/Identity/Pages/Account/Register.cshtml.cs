@@ -55,7 +55,7 @@ public class RegisterModel : PageModel
 
         [Required]
         [EmailAddress]
-        [Display(Name = "Correo institucional (@usmp.pe)")]
+        [Display(Name = "Correo institucional ( @usmp.pe )")]
         public string Email { get; set; } = string.Empty;
 
         [Required]
